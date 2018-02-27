@@ -8,12 +8,9 @@ Winter 2018
 
 Simulator class for simulating a single level of cache.
 Simulator reports cache statistics at the end of all address traces.
-
-
 """
 
 import cache as c
-import string
 
 class simulator(object):
     """A simulator simulates address traces for the cache class"""
