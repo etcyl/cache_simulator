@@ -10,8 +10,6 @@ Cache class for simulating a single level (L1) of cache.
 Cache with configurable set size, cache line size, and associativity.
 Associativity ranging between 1 and 8.
 Cache line size ranging between 32 bytes and 128 bytes.
-
-
 """
 
 import associated_line as a_line
@@ -178,14 +176,14 @@ class cache():
                         all_ones = 0
                         break
                 if(all_ones == 1):
-                    #print('Clearing all MRU bits')
+                    #print('Clearing all LRU bits')
                     for i in range(self.associativity):
                         self.sets[set_index].clearStatusBit(i)
                         self.sets[set_index].clearDirtyBit(i)
+                        self.updateEvictions()
                     self.sets[set_index].setValidBit(0)
                     self.sets[set_index].setStatusBit(0)
                     self.sets[set_index].writeTagBits(0, to_shift)
-                    self.updateEvictions()
                 else:
                     #print('all_ones == 0 path taken')
                     for i in range(self.associativity):
@@ -193,7 +191,7 @@ class cache():
                             self.sets[set_index].setValidBit(i)
                             self.sets[set_index].setStatusBit(i)
                             self.sets[set_index].writeTagBits(i, to_shift)
-                            self.updateEvictions()
+                            #self.updateEvictions()
                             return
         #The access must be a write if it's not a read
         else:
@@ -230,11 +228,11 @@ class cache():
                 for i in range(self.associativity):
                     self.sets[set_index].clearStatusBit(i)
                     self.sets[set_index].clearDirtyBit(i)
+                    self.updateEvictions()
                 self.sets[set_index].setValidBit(0)
                 self.sets[set_index].setStatusBit(0)
                 self.sets[set_index].setDirtyBit(0)
                 self.sets[set_index].writeTagBits(0, to_shift)
-                self.updateEvictions()
                 return
             #print('all_ones == 0 path taken')
             for i in range(self.associativity):
@@ -243,5 +241,5 @@ class cache():
                     self.sets[set_index].setStatusBit(i)
                     self.sets[set_index].setDirtyBit(i)
                     self.sets[set_index].writeTagBits(i, to_shift)
-                    self.updateEvictions()
+                    #self.updateEvictions()
                     return
