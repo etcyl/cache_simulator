@@ -117,7 +117,6 @@ class cache():
         return self.miss_ratio
     
     def updateStatistics(self):
-        self.updateEvictions()
         self.updateHitRatio()
         self.updateMissRatio()
         
@@ -156,38 +155,31 @@ class cache():
                 if(self.sets[set_index].getValidBit(i) == 1):
                     valid_bit = 1
                     if(self.sets[set_index].getTagBits(i) == to_shift):
-                        #print('Valid bit set, cache hit')
                         self.updateHits()
                         self.sets[set_index].setStatusBit(i)
                         return
             self.updateMisses()
             if(valid_bit == 0):
-               # print('Valid bit clear, cache miss')
                 self.sets[set_index].setValidBit(0)
                 self.sets[set_index].setStatusBit(0)
                 self.sets[set_index].writeTagBits(0, to_shift)
             else:
-                #print('Valid bit set, cache miss')
                 all_ones = 1
                 for i in range(self.associativity):
                     if(self.sets[set_index].getStatusBit(i) == 0):
                         all_ones = 0
                         break
                 if(all_ones == 1):
-                    #print('Clearing all LRU bits')
                     for i in range(self.associativity):
                         self.sets[set_index].clearStatusBit(i)
-                        #self.sets[set_index].clearDirtyBit(i)
                     if(self.sets[set_index].getDirtyBit(0)):
                         self.updateWritebacks()
                         self.sets[set_index].clearDirtyBit(0)
-                    self.updateEvictions()
                     self.sets[set_index].setValidBit(0)
                     self.sets[set_index].setStatusBit(0)
                     self.sets[set_index].writeTagBits(0, to_shift)
                     return
                 else:
-                    #print('all_ones == 0 path taken')
                     for i in range(self.associativity):
                         if(self.sets[set_index].getStatusBit(i) == 0):
                             self.sets[set_index].setValidBit(i)
@@ -196,7 +188,6 @@ class cache():
                             if(self.sets[set_index].getDirtyBit(i)):
                                 self.updateWritebacks()
                                 self.sets[set_index].clearDirtyBit(i)
-                            self.updateEvictions()
                             return
         #The access must be a write if it's not a read
         else:
@@ -208,17 +199,14 @@ class cache():
                 if(self.sets[set_index].getValidBit(i) == 1):
                     valid_bit = 1
                     if(self.sets[set_index].getTagBits(i) == to_shift):
-                        #print('Valid bit set, cache hit')
                         self.updateHits()
-                        #updateWritebacks()
                         self.sets[set_index].setStatusBit(i)
                         self.sets[set_index].setDirtyBit(i)
-                        return       
+                        return     
             if(valid_bit == 0):
                 if(self.sets[set_index].getDirtyBit(0)):
                     self.updateWritebacks()
                 self.updateMisses()
-                #self.updateWriteBacks()
                 self.sets[set_index].setValidBit(0)
                 self.sets[set_index].setStatusBit(0)
                 self.sets[set_index].writeTagBits(0, to_shift)   
@@ -231,11 +219,8 @@ class cache():
                     break
             self.updateMisses()
             if(all_ones == 1):
-                #print('Clearing all MRU bits')
                 for i in range(self.associativity):
                     self.sets[set_index].clearStatusBit(i)
-                    #self.sets[set_index].clearDirtyBit(i)
-                    #self.updateEvictions()
                 if(self.sets[set_index].getDirtyBit(0)):
                     self.updateWritebacks()
                 self.sets[set_index].setValidBit(0)
@@ -243,7 +228,6 @@ class cache():
                 self.sets[set_index].setDirtyBit(0)
                 self.sets[set_index].writeTagBits(0, to_shift)
                 return
-            #print('all_ones == 0 path taken')
             for i in range(self.associativity):
                 if(self.sets[set_index].getStatusBit(i) == 0):
                     if(self.sets[set_index].getDirtyBit(i)):
@@ -252,5 +236,4 @@ class cache():
                     self.sets[set_index].setStatusBit(i)
                     self.sets[set_index].setDirtyBit(i)
                     self.sets[set_index].writeTagBits(i, to_shift)
-                    #self.updateEvictions()
                     return
