@@ -138,7 +138,7 @@ class cache():
         
     def serveAccess(self, access_type, mem_address):
         self.total_accesses += 1
-        address = format(mem_address, 'x')
+        #address = format(mem_address, 'x')
         M = int(math.log(self.line_size, 2)) #Number of byte select bits (lowest-order bits)
         O = int(math.log(self.num_sets, 2))  #Number of set index bits (immediately after M bits, and before the cache tag bits, N)
         to_shift = int(mem_address) >> (M + O) #Tag bits
@@ -148,8 +148,8 @@ class cache():
         #Check if the access is a read
         if access_type == 0:
             self.updateReads()
-            req_type = "read"
-            print('Serving', req_type, 'request at location 0x', address)
+            #req_type = "read"
+            #print('Serving', req_type, 'request at location 0x', address)
             valid_bit = 0
             for i in range(self.associativity):
                 if(self.sets[set_index].getValidBit(i) == 1):
@@ -163,7 +163,9 @@ class cache():
                 self.sets[set_index].setValidBit(0)
                 self.sets[set_index].setStatusBit(0)
                 self.sets[set_index].writeTagBits(0, to_shift)
+                return
             else:
+                self.updateEvictions()
                 all_ones = 1
                 for i in range(self.associativity):
                     if(self.sets[set_index].getStatusBit(i) == 0):
@@ -192,8 +194,8 @@ class cache():
         #The access must be a write if it's not a read
         else:
             self.updateWrites()
-            req_type = "write"
-            print('Serving', req_type, 'request at location 0x', address)
+            #req_type = "write"
+            #print('Serving', req_type, 'request at location 0x', address)
             valid_bit = 0
             for i in range(self.associativity):
                 if(self.sets[set_index].getValidBit(i) == 1):
@@ -212,6 +214,7 @@ class cache():
                 self.sets[set_index].writeTagBits(0, to_shift)   
                 self.sets[set_index].setDirtyBit(0)
                 return
+            self.updateEvictions()
             all_ones = 1
             for i in range(self.associativity):
                 if(self.sets[set_index].getStatusBit(i) == 0):
