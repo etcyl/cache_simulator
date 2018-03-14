@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Feb 19 19:46:24 2018
-
 Matt Fleetwood
 ECE 485
 Winter 2018
-
 Cache class for simulating a single level (L1) of cache.
 Cache with configurable set size, cache line size, and associativity.
 Associativity ranging between 1 and 8.
@@ -148,95 +146,71 @@ class cache():
         #Check if the access is a read
         if access_type == 0:
             self.updateReads()
-            #req_type = "read"
-            #print('Serving', req_type, 'request at location 0x', address)
-            valid_bit = 0
             for i in range(self.associativity):
                 if(self.sets[set_index].getValidBit(i) == 1):
-                    valid_bit = 1
                     if(self.sets[set_index].getTagBits(i) == to_shift):
                         self.updateHits()
                         self.sets[set_index].setStatusBit(i)
                         return
-            self.updateMisses()
-            if(valid_bit == 0):
-                self.sets[set_index].setValidBit(0)
-                self.sets[set_index].setStatusBit(0)
-                self.sets[set_index].writeTagBits(0, to_shift)
-                return
-            else:
-                self.updateEvictions()
-                all_ones = 1
-                for i in range(self.associativity):
-                    if(self.sets[set_index].getStatusBit(i) == 0):
-                        all_ones = 0
-                        break
-                if(all_ones == 1):
-                    for i in range(self.associativity):
-                        self.sets[set_index].clearStatusBit(i)
-                    if(self.sets[set_index].getDirtyBit(0)):
-                        self.updateWritebacks()
-                        self.sets[set_index].clearDirtyBit(0)
-                    self.sets[set_index].setValidBit(0)
-                    self.sets[set_index].setStatusBit(0)
-                    self.sets[set_index].writeTagBits(0, to_shift)
+                elif(self.sets[set_index].getValidBit(i) == 0):
+                    self.updateMisses()
+                    self.sets[set_index].writeTagBits(i, to_shift)
+                    self.sets[set_index].setStatusBit(i)
+                    self.sets[set_index].setValidBit(i)
                     return
-                else:
-                    for i in range(self.associativity):
-                        if(self.sets[set_index].getStatusBit(i) == 0):
-                            self.sets[set_index].setValidBit(i)
-                            self.sets[set_index].setStatusBit(i)
-                            self.sets[set_index].writeTagBits(i, to_shift)
-                            if(self.sets[set_index].getDirtyBit(i)):
-                                self.updateWritebacks()
-                                self.sets[set_index].clearDirtyBit(i)
-                            return
-        #The access must be a write if it's not a read
+            self.updateMisses()
+            self.updateEvictions()
+            MRU_bits = 0
+            eviction_candidate = 0
+            for i in range(self.associativity):
+                if(self.sets[set_index].getStatusBit(i) == 1):
+                    MRU_bits = MRU_bits + 1
+                elif(self.sets[set_index].getStatusBit(i) == 0):
+                    eviction_candidate = i
+                    break
+            if(MRU_bits == self.associativity):
+                eviction_candidate = 0
+                for i in range(self.associativity):
+                    self.sets[set_index].clearStatusBit(i)
+            if(self.sets[set_index].getDirtyBit(eviction_candidate) == 1):
+                self.updateWritebacks()
+            self.sets[set_index].writeTagBits(eviction_candidate, to_shift)
+            self.sets[set_index].setStatusBit(eviction_candidate)
+            self.sets[set_index].setValidBit(eviction_candidate)
         else:
             self.updateWrites()
-            #req_type = "write"
-            #print('Serving', req_type, 'request at location 0x', address)
-            valid_bit = 0
             for i in range(self.associativity):
-                if(self.sets[set_index].getValidBit(i) == 1):
-                    valid_bit = 1
+                if(self.sets[set_index].getValidBit(i) == 0):
+                    self.updateMisses()
+                    self.sets[set_index].setValidBit(i)
+                    self.sets[set_index].setStatusBit(i)
+                    self.sets[set_index].writeTagBits(i, to_shift)
+                    self.sets[set_index].setDirtyBit(i)
+                    return
+                elif(self.sets[set_index].getValidBit(i) == 1):
                     if(self.sets[set_index].getTagBits(i) == to_shift):
                         self.updateHits()
                         self.sets[set_index].setStatusBit(i)
                         self.sets[set_index].setDirtyBit(i)
-                        return     
-            if(valid_bit == 0):
-                if(self.sets[set_index].getDirtyBit(0)):
-                    self.updateWritebacks()
-                self.updateMisses()
-                self.sets[set_index].setValidBit(0)
-                self.sets[set_index].setStatusBit(0)
-                self.sets[set_index].writeTagBits(0, to_shift)   
-                self.sets[set_index].setDirtyBit(0)
-                return
-            self.updateEvictions()
-            all_ones = 1
-            for i in range(self.associativity):
-                if(self.sets[set_index].getStatusBit(i) == 0):
-                    all_ones = 0
-                    break
+                        return
             self.updateMisses()
-            if(all_ones == 1):
+            self.updateEvictions()
+            MRU_bits = 0
+            eviction_candidate = 0
+            for i in range(self.associativity):
+                if(self.sets[set_index].getStatusBit(i) == 1):
+                    MRU_bits += 1
+                elif(self.sets[set_index].getStatusBit(i) == 0):
+                    eviction_candidate = i
+                    break
+            if(MRU_bits == self.associativity):
+                eviction_candidate = 0
                 for i in range(self.associativity):
                     self.sets[set_index].clearStatusBit(i)
-                if(self.sets[set_index].getDirtyBit(0)):
-                    self.updateWritebacks()
-                self.sets[set_index].setValidBit(0)
-                self.sets[set_index].setStatusBit(0)
-                self.sets[set_index].setDirtyBit(0)
-                self.sets[set_index].writeTagBits(0, to_shift)
-                return
-            for i in range(self.associativity):
-                if(self.sets[set_index].getStatusBit(i) == 0):
-                    if(self.sets[set_index].getDirtyBit(i)):
-                        self.updateWritebacks()
-                    self.sets[set_index].setValidBit(i)
-                    self.sets[set_index].setStatusBit(i)
-                    self.sets[set_index].setDirtyBit(i)
-                    self.sets[set_index].writeTagBits(i, to_shift)
-                    return
+            if(self.sets[set_index].getDirtyBit(eviction_candidate) == 1):
+                self.updateWritebacks()
+            self.sets[set_index].writeTagBits(eviction_candidate, to_shift)
+            self.sets[set_index].setStatusBit(eviction_candidate)
+            self.sets[set_index].setValidBit(eviction_candidate)
+            self.sets[set_index].setDirtyBit(eviction_candidate)
+            return      
