@@ -1,0 +1,41 @@
+Number of sets are: 64 
+Associativity is: 1 
+Line size is: 32
+Total number of cache accessess:  100000
+Number of cache reads:  100000
+Number of cache writes:  0
+Number of cache hits:  84945
+Number of cache misses:  15055
+Cache hit ratio:  84.94500000000001 %
+Cache miss ratio:  15.055 %
+Number of evictions:  14991
+Number of writebacks:  0
+End of 32B line size
+
+Number of sets are: 64 
+Associativity is: 1 
+Line size is: 64
+Total number of cache accessess:  100000
+Number of cache reads:  100000
+Number of cache writes:  0
+Number of cache hits:  92546
+Number of cache misses:  7454
+Cache hit ratio:  92.54599999999999 %
+Cache miss ratio:  7.454 %
+Number of evictions:  7390
+Number of writebacks:  0
+End of 64B line size
+
+Number of sets are: 64 
+Associativity is: 1 
+Line size is: 128
+Total number of cache accessess:  100000
+Number of cache reads:  100000
+Number of cache writes:  0
+Number of cache hits:  95736
+Number of cache misses:  4264
+Cache hit ratio:  95.736 %
+Cache miss ratio:  4.263999999999999 %
+Number of evictions:  4200
+Number of writebacks:  0
+End of 128B line size

@@ -1,0 +1,18 @@
+Whichever of the two traces, on average, exhibits
+the higher miss ratio is the trace that has the 
+larger working set size. 
+
+Average MR for p1_t1: (4.8 + 2.8 + 2.1 + 1.8) / 4 = 2.875
+Average MR for p1_t2: (7.4 + 5.9 + 4.8 + 3.1) / 4 = 5.3
+
+Average MR for p2_t1: (4.8 + 1.9 + 1.3 + 1.2) / 4 = 2.3
+Average MR for p2_t2: (7.4 + 4.9 + 3.2 + 1.9) / 4 = 4.35
+
+Average MR for p3_t1: (8 + 4.8 + 2.6) / 3 = 5.1
+Average MR for p3_t2: (15 + 7.4 + 4.2) / 3 = 8.8
+
+For every pair of averages (e.g. problem 1, trace1 and trace2),
+trace1 exhibited a lower miss ratio, which implies that 
+there is less memory required for trace 1. This means that
+trace2 requires more memory as it exhibits a larger miss ratio.
+In other words, trace2 is the larger working set size.
